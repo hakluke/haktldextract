@@ -11,7 +11,7 @@ import (
 
 
 func main() {
-        concurrencyPtr := flag.Int("t", 16, "number of threads to utilise")
+        concurrencyPtr := flag.Int("t", 8, "Number of threads to utilise. Default is 8.")
         subdomainsPtr := flag.Bool("s", false, "dump subdomains instead of base domains") 
         flag.Parse()
 
