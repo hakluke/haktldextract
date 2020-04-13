@@ -3,13 +3,18 @@ package main
 import (
         "github.com/joeguo/tldextract"
         "bufio"
+        "flag"
 	"fmt"
 	"os"
 )
 
 
 func main() {
-        concurrency := 16 
+        concurrencyPtr := flag.Int("t", 16, "number of threads to utilise")
+        subdomainsPtr := flag.Bool("s", false, "dump subdomains instead of base domains") 
+        flag.Parse()
+
+        concurrency := *concurrencyPtr 
         sem := make(chan bool, concurrency)
 	scanner := bufio.NewScanner(os.Stdin)
         for scanner.Scan() {
@@ -23,7 +28,11 @@ func main() {
                     }
                     result:=extract.Extract(url)
                     if err == nil{
-                        fmt.Println(result.Root + "." + result.Tld)
+                        if *subdomainsPtr {
+                            fmt.Println(result.Sub + "." + result.Root + "." + result.Tld)
+                        } else {
+                            fmt.Println(result.Root + "." + result.Tld)
+                        }
                     }
 		}(scanner.Text())
 	}
