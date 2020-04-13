@@ -43,7 +43,7 @@ func main() {
 func doWork(work chan string, wg *sync.WaitGroup, subdomainsPtr bool, extract *tldextract.TLDExtract) {
     for url := range work {
         result := extract.Extract(url)
-        if subdomainsPtr {
+        if subdomainsPtr && len(result.Sub) > 0{
             fmt.Println(result.Sub + "." + result.Root + "." + result.Tld)
         } else {
             fmt.Println(result.Root + "." + result.Tld)
