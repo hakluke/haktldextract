@@ -15,7 +15,7 @@ cat urls.txt | haktldextract
 
 Options:
 ```
--t      threads (number of concurrent threads to use)
+-t      threads (number of concurrent threads to use, default is 16)
 -s      subdomains (dump subdomains instead of base domains) 
 ```
 
