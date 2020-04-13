@@ -2,13 +2,13 @@
 
 Basic tool to extract base domains from URLs.
 
-# Installation
+### Installation
 
 ```
 go get github.com/hakluke/haktldextract
 ```
 
-# Usage
+### Usage
 ```
 cat urls.txt | haktldextract
 ```
