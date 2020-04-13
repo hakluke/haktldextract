@@ -5,6 +5,7 @@ import (
         "bufio"
         "flag"
 	"fmt"
+        "sync"
 	"os"
 )
 
@@ -14,31 +15,40 @@ func main() {
         subdomainsPtr := flag.Bool("s", false, "dump subdomains instead of base domains") 
         flag.Parse()
 
-        concurrency := *concurrencyPtr 
-        sem := make(chan struct{}, concurrency)
         cache := "/tmp/tld.cache"
         extract,err := tldextract.New(cache,false)
+        if err != nil {
+            fmt.Println(err)
+        }
 
-	scanner := bufio.NewScanner(os.Stdin)
-        for scanner.Scan() {
-            sem <- struct{}{} // uses a slot 
-		go func(url string) {
-                    defer func() { <-sem }() // releases a slot
-                    if err != nil{
-                        fmt.Println(err)
-                        return
-                    }
-                    result:=extract.Extract(url)
-                    if err != nil{
-                        fmt.Println(err)
-                        return
-                    } else {
-                        if *subdomainsPtr {
-                            fmt.Println(result.Sub + "." + result.Root + "." + result.Tld)
-                        } else {
-                            fmt.Println(result.Root + "." + result.Tld)
-                        }
-                    }
-		}(scanner.Text())
-	}
+        numWorkers := *concurrencyPtr 
+        work := make(chan string)
+        go func() {
+            s := bufio.NewScanner(os.Stdin)
+            for s.Scan() {
+                work <- s.Text()
+            }
+            close(work)
+        }()
+
+        wg := &sync.WaitGroup{}
+
+        for i := 0; i < numWorkers; i++ {
+            wg.Add(1)
+            go doWork(work, wg, *subdomainsPtr, extract)
+        }
+        wg.Wait()
 }
+
+func doWork(work chan string, wg *sync.WaitGroup, subdomainsPtr bool, extract *tldextract.TLDExtract) {
+    for url := range work {
+        result := extract.Extract(url)
+        if subdomainsPtr {
+            fmt.Println(result.Sub + "." + result.Root + "." + result.Tld)
+        } else {
+            fmt.Println(result.Root + "." + result.Tld)
+        }
+    }
+    wg.Done()
+}
+
