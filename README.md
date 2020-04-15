@@ -1,6 +1,6 @@
 # haktldextract
 
-Basic tool to extract base domains from URLs.
+Basic tool to extract domains/subdomains from URLs en masse
 
 ### Installation
 
