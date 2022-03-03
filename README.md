@@ -5,7 +5,7 @@ Basic tool to extract domains/subdomains from URLs en masse
 ### Installation
 
 ```
-go get github.com/hakluke/haktldextract
+go install github.com/hakluke/haktldextract@latest
 ```
 
 ### Usage
